@@ -20,10 +20,6 @@ func main() {
 	for _, value := range input {
 		tree.Insert(value)
 	}
-	node, _ := tree.Find(-1000)
-	parent := tree.FindParent(node)
-	printPreOrder(tree.root)
-	fmt.Println(parent)
 
 }
 func (t *Tree) Insert(data int) {
@@ -51,13 +47,13 @@ func (n *Node) Insert(data int) {
 	}
 }
 
-func (t *Tree) Find(data int) (*Node, bool) {
+func (t *Tree) FindNode(data int) (*Node, bool) {
 	if t.root == nil {
 		return nil, false
 	}
-	return t.root.Find(data)
+	return t.root.FindNode(data)
 }
-func (n *Node) Find(data int) (*Node, bool) {
+func (n *Node) FindNode(data int) (*Node, bool) {
 
 	if n == nil {
 		return nil, false
@@ -68,39 +64,39 @@ func (n *Node) Find(data int) (*Node, bool) {
 		return n, true
 
 	case data < n.value:
-		return (n.left.Find(data))
+		return (n.left.FindNode(data))
 
 	default:
-		return (n.right.Find(data))
+		return (n.right.FindNode(data))
 
 	}
 }
 
-func (t *Tree) FindMax() *Node {
-	return t.root.FindMax()
+func (t *Tree) FindMaxNode() *Node {
+	return t.root.FindMaxNode()
 }
 
-func (n *Node) FindMax() *Node {
+func (n *Node) FindMaxNode() *Node {
 	if n.right == nil {
 		return n
 	} else {
-		return n.right.FindMax()
+		return n.right.FindMaxNode()
 	}
 }
 
-func (t *Tree) FindMin() *Node {
-	return t.root.FindMin()
+func (t *Tree) FindMinNode() *Node {
+	return t.root.FindMinNode()
 }
-func (n *Node) FindMin() *Node {
+func (n *Node) FindMinNode() *Node {
 	if n.left == nil {
 		return n
 
 	} else {
-		return n.left.FindMin()
+		return n.left.FindMinNode()
 	}
 }
 
-func (t *Tree) FindParent(child *Node) *Node {
+func (t *Tree) FindParentNode(child *Node) *Node {
 	if child == nil {
 		return nil
 	}
@@ -108,9 +104,9 @@ func (t *Tree) FindParent(child *Node) *Node {
 		return nil
 	}
 
-	return t.root.FindParent(child)
+	return t.root.FindParentNode(child)
 }
-func (n *Node) FindParent(child *Node) *Node {
+func (n *Node) FindParentNode(child *Node) *Node {
 
 	if n == nil {
 		return nil
@@ -121,11 +117,11 @@ func (n *Node) FindParent(child *Node) *Node {
 	} else if n.right == child {
 		return n
 	} else {
-		l := n.left.FindParent(child)
+		l := n.left.FindParentNode(child)
 		if l != nil {
 			return l
 		}
-		r := n.right.FindParent(child)
+		r := n.right.FindParentNode(child)
 
 		if r != nil {
 			return r
@@ -137,13 +133,13 @@ func (n *Node) FindParent(child *Node) *Node {
 
 }
 
-func printPreOrder(n *Node) {
+func PrintPreOrder(n *Node) {
 	if n == nil {
 		return
 	} else {
 		fmt.Printf("%d ", n.value)
-		printPreOrder(n.left)
-		printPreOrder(n.right)
+		PrintPreOrder(n.left)
+		PrintPreOrder(n.right)
 	}
 }
 
