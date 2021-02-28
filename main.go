@@ -3,10 +3,9 @@ package main
 import "fmt"
 
 type Node struct {
-	right  *Node
-	left   *Node
-	parent *Node
-	value  int
+	right *Node
+	left  *Node
+	value int
 }
 
 type Tree struct {
@@ -17,20 +16,14 @@ func main() {
 	var tree Tree
 	// tree.root = &Node{value: 2, left: nil, right: nil}
 
-	input := []int{2, 4, 1, 0, 10, 123, 10, 20, -4, -2, 100000}
+	input := []int{200000000, 4000000, -1000, -4000, 2, 4, 1, 0, 10, 123, 10, 20, -4, -2, 100000}
 	for _, value := range input {
 		tree.Insert(value)
 	}
-
-	fmt.Println(tree.FindMaxNode())
-	del, _ := tree.Find(123)
-	fmt.Println(del)
-	tree.Delete(del)
-	newv := tree.FindMaxNode()
-	fmt.Println(newv)
-	// fmt.Println(del.parent.value)
-	// fmt.Println(del)
-	// fmt.Println(del.right.value)
+	node, _ := tree.Find(-1000)
+	parent := tree.FindParent(node)
+	printPreOrder(tree.root)
+	fmt.Println(parent)
 
 }
 func (t *Tree) Insert(data int) {
@@ -45,7 +38,7 @@ func (n *Node) Insert(data int) {
 		if n.left != nil {
 			n.left.Insert(data)
 		} else {
-			n.left = &Node{value: data, parent: n}
+			n.left = &Node{value: data}
 
 		}
 	}
@@ -53,12 +46,15 @@ func (n *Node) Insert(data int) {
 		if n.right != nil {
 			n.right.Insert(data)
 		} else {
-			n.right = &Node{value: data, parent: n}
+			n.right = &Node{value: data}
 		}
 	}
 }
 
 func (t *Tree) Find(data int) (*Node, bool) {
+	if t.root == nil {
+		return nil, false
+	}
 	return t.root.Find(data)
 }
 func (n *Node) Find(data int) (*Node, bool) {
@@ -80,77 +76,146 @@ func (n *Node) Find(data int) (*Node, bool) {
 	}
 }
 
-func (t *Tree) FindMaxNode() *Node {
-	return t.root.FindMaxNode()
+func (t *Tree) FindMax() *Node {
+	return t.root.FindMax()
 }
 
-func (n *Node) FindMaxNode() *Node {
+func (n *Node) FindMax() *Node {
 	if n.right == nil {
 		return n
 	} else {
-		return n.right.FindMaxNode()
+		return n.right.FindMax()
 	}
 }
 
-func (t *Tree) FindMinNode() *Node {
-	return t.root.FindMinNode()
+func (t *Tree) FindMin() *Node {
+	return t.root.FindMin()
 }
-func (n *Node) FindMinNode() *Node {
+func (n *Node) FindMin() *Node {
 	if n.left == nil {
 		return n
 
 	} else {
-		return n.left.FindMinNode()
+		return n.left.FindMin()
 	}
 }
-func (t *Tree) Delete(node *Node) {
 
-	node.Delete() //fails when trying to delete the root
+func (t *Tree) FindParent(child *Node) *Node {
+	if child == nil {
+		return nil
+	}
+	if t == nil {
+		return nil
+	}
 
+	return t.root.FindParent(child)
 }
-func (n *Node) Delete() {
-	switch {
-	case (n.right == nil && n.left == nil): // if leaf -> just remove
+func (n *Node) FindParent(child *Node) *Node {
 
-		n.ReplaceNode(nil)
+	if n == nil {
+		return nil
+	}
 
-	case (n.right == nil || n.left == nil): // if has only one branch
-		if n.right != nil {
-			n.ReplaceNode(n.right)
+	if n.left == child {
+		return n
+	} else if n.right == child {
+		return n
+	} else {
+		l := n.left.FindParent(child)
+		if l != nil {
+			return l
+		}
+		r := n.right.FindParent(child)
 
-		} else {
-			n.ReplaceNode(n.left)
-
+		if r != nil {
+			return r
 		}
 
-	case (n.right != nil && n.left != nil): // if has both branches
-
-		repl := n.left.FindMaxNode()
-		n.ReplaceNode(repl)
+		return nil
 
 	}
 
 }
 
-func (n *Node) ReplaceNode(newNode *Node) {
-	if n.left != nil { // if has left leaf
-		n.left.parent = newNode
-
+func printPreOrder(n *Node) {
+	if n == nil {
+		return
+	} else {
+		fmt.Printf("%d ", n.value)
+		printPreOrder(n.left)
+		printPreOrder(n.right)
 	}
-	if n.right != nil {
-		n.right.parent = newNode
-
-	}
-
-	if n.parent != nil {
-		if n.parent.left == n {
-			n.parent.left = newNode
-
-		} else {
-
-			n.parent.right = newNode
-		}
-	}
-
-	// n = nil // remove pointer to parent on old node to trigger garbage collection
 }
+
+// func (t *Tree) Delete(node *Node) bool {		//buggy
+// 	if node == t.root { // if delete root
+// 		parent := &Node{right: t.root}
+// 		st := node.Delete(parent)
+// 		fmt.Println(1)
+// 		switch {
+// 		case t.root.left == nil && t.root.right == nil:
+// 			return false
+// 		default:
+// 			status := node.Delete(parent)
+// 			if status == true {
+// 				fmt.Println(node)
+// 				t.root = node
+// 				return st
+// 			}
+// 		}
+// 	}
+
+// 	parent := t.FindParent(node) // if basic case
+// 	return node.Delete(parent)
+
+// }
+// func (n *Node) Delete(parent *Node) bool {
+
+// 	if n == nil {
+// 		return false
+// 	}
+// 	switch {
+// 	case (n.right == nil && n.left == nil): // if leaf -> just remove
+// 		fmt.Println(n)
+// 		n.ReplaceNode(parent, nil)
+
+// 		return true
+
+// 	case (n.right == nil || n.left == nil): // if has only one branch -> replace with the branch leaft
+// 		if n.right != nil {
+
+// 			n.ReplaceNode(parent, n.right)
+// 			return true
+
+// 		}
+
+// 		n.ReplaceNode(parent, n.left)
+// 		return true
+
+// 	case (n.right != nil && n.left != nil): // if has both branches -> find max on left side and replace
+// 		replace := n.left.FindMax()
+// 		replaceParent := n.left.FindParent(replace)
+// 		n.value = replace.value
+
+// 		replace.Delete(replaceParent)
+// 		return true
+// 	}
+
+// 	return false
+
+// }
+
+// func (n *Node) ReplaceNode(parent, replace *Node) {
+
+// 	if parent != nil { //modify parent`s pointer
+// 		if parent.left == n {
+// 			parent.left = replace
+// 			return
+
+// 		}
+// 		parent.right = replace
+// 		return
+// 	}
+
+// 	// n = nil // remove pointer to parent on old node to trigger garbage collection
+// }
